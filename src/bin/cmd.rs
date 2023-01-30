@@ -1,4 +1,4 @@
-use std::{fs::{self, ReadDir, DirEntry, read_dir}, io::Error, env};
+use std::{fs::{self, remove_file, rename}, io};
 
 fn main() {
     for arg in std::env::args() {
@@ -16,7 +16,18 @@ fn dir() -> std::io::Result<()> {
 
 fn destroy() {
     for arg in std::env::args() {
-        let args: Vec<String> = env::args().collect();
-        
+        remove_file(arg);
+    }
+}
+
+fn newname() {
+    let args: Vec<String> = std::env::args().collect();
+    match args.len() {
+        0 => {
+            println!("Usage: newname (current_name new_name)");
+        }
+        _ => {
+            
+        }
     }
 }
