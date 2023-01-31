@@ -1,4 +1,4 @@
-use std::fs::copy;
+use std::fs::{self};
 
 fn main() {
     let args: Vec<String> = std::env::args().skip(1).collect();
@@ -8,9 +8,9 @@ fn main() {
         }
         _ => {
             // copy(args[0].as_str(), args[1].as_str());
-            match copy(args[0].as_str(), args[1].as_str()) {
+            match fs::copy(&args[0], &args[1]) {
                 Ok(_) => {},
-                Err(e) => println!("Error: {e}")
+                Err(_e) => println!("{_e}")
             }
         }
     }
