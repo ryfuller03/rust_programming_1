@@ -9,7 +9,6 @@ fn main() {
             let req = Request::new(&args[0]);
             let get_req = create_get(&req);
             println!("{}", get_req);
-            println!("{}", req.filename);
             match send_message(&req.host, 443, &get_req, &req.filename) {
                 Ok(_) => {},
                 Err(e) => println!("Error: {e}")
