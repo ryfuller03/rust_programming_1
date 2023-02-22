@@ -8,3 +8,5 @@ edition = "2021"
 [dependencies]
 nix = {version = "0.26.2", features = ["process"]}
 anyhow = "1.0.68"
+openssl = { version = "0.10", features = ["vendored"] }
+openssl-probe = "0.1.5"
