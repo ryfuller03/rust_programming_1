@@ -9,21 +9,59 @@ fn main() {
             let req = Request::new(&args[0]);
             let get_req = create_get(&req);
             println!("{}", get_req);
-            match send_message(&req.host, 443, &get_req, &req.filename) {
-                Ok(_) => {},
-                Err(e) => println!("Error: {e}")
+            // check for http or https
+            // if http: look for port specification
+            // if https: do send_message
+            if args[0].contains("https") {
+                match send_message(&req.host, 443, &get_req, &req.filename) {
+                    Ok(_) => {},
+                    Err(e) => println!("Error: {e}")
+                }
+            } else if args[0].contains("http") {
+                match send_unsecured(&req.host, 8888, &get_req, &req.filename) {
+                    Ok(_) => {},
+                    Err(e) => println!("Error: {e}")
+                }
             }
             
         }
         _ => println!("Usage: webget [url]"),
     }
-    
 }
 
 fn send_message(host: &str, port: usize, message: &str, filename: &str) -> anyhow::Result<()> {
     let tcp = TcpStream::connect(format!("{}:{}", host, port))?;
     let connector = SslConnector::builder(SslMethod::tls())?.build();
     let mut stream = connector.connect(host, tcp)?;
+    stream.write(message.as_bytes())?;
+    let stream_buffer = BufReader::new(stream);
+    let mut header = true;
+    let mut file_lines = Vec::new();
+    for line in stream_buffer.lines() {
+        let final_line = line.unwrap().clone();
+        if header {
+            println!("{final_line}");
+            if final_line.len() == 0 {
+                header = false;
+            }
+        } else {
+            write!(&mut file_lines, "{}\n", final_line)?;
+        }
+    }
+    let final_filename = match filename.rfind("/") {
+        Some(_) => {
+            let (_unneeded, rest) = filename.split_at(filename.rfind("/").expect("Couldn't find /") + 1);
+            rest
+        },
+        None => filename,
+    };
+    let mut new_file = File::create(final_filename)?;
+    new_file.write_all(&file_lines)?;
+    Ok(())
+}
+
+fn send_unsecured(host: &str, port: usize, message: &str, filename: &str) -> anyhow::Result<()> {
+    let mut stream = TcpStream::connect(format!("{}:{}", host, port))?;
     stream.write(message.as_bytes())?;
     let stream_buffer = BufReader::new(stream);
     let mut header = true;
