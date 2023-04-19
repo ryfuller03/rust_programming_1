@@ -46,9 +46,9 @@ fn chars(files: &[String]) -> usize {
     for filename in files {
         let f = File::open(filename).unwrap();
         let buffer = BufReader::new(f);
-        
         for line in buffer.lines() {
             count += line.unwrap().chars().count();
+            count += 1; // for each new line
         }
     }
     count
